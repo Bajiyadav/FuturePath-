@@ -1,7 +1,7 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-export default function AboutPage() {
+export default function StoriesPage() {
 return (
 <> <Navbar />
 
@@ -10,45 +10,51 @@ return (
     <section className="mx-auto max-w-7xl px-6 py-20">
       <div className="text-center">
         <h1 className="text-6xl font-bold">
-          About FuturePath
+          Success Stories
         </h1>
 
-        <p className="mx-auto mt-6 max-w-4xl text-xl text-slate-400">
-          FuturePath is an AI-powered career intelligence platform
-          helping students, graduates and professionals discover
-          career opportunities, connect with mentors and accelerate
-          growth through structured learning roadmaps.
+        <p className="mt-6 text-xl text-slate-400">
+          Real career transformations from FuturePath learners.
         </p>
       </div>
 
       <div className="mt-20 grid gap-8 md:grid-cols-3">
         <div className="rounded-3xl bg-white/5 p-8">
-          <h2 className="text-2xl font-bold">
-            Our Mission
+          <div className="text-4xl">🛡️</div>
+
+          <h2 className="mt-4 text-2xl font-bold">
+            Cybersecurity
           </h2>
 
           <p className="mt-4 text-slate-400">
-            Make career guidance accessible to everyone.
+            A student transitioned into a SOC Analyst role after
+            completing a cybersecurity roadmap.
           </p>
         </div>
 
         <div className="rounded-3xl bg-white/5 p-8">
-          <h2 className="text-2xl font-bold">
-            Our Vision
+          <div className="text-4xl">🤖</div>
+
+          <h2 className="mt-4 text-2xl font-bold">
+            AI Engineer
           </h2>
 
           <p className="mt-4 text-slate-400">
-            Build the world's leading mentorship platform.
+            A learner secured an AI internship through mentorship
+            and project guidance.
           </p>
         </div>
 
         <div className="rounded-3xl bg-white/5 p-8">
-          <h2 className="text-2xl font-bold">
-            Our Values
+          <div className="text-4xl">☁️</div>
+
+          <h2 className="mt-4 text-2xl font-bold">
+            Cloud Engineer
           </h2>
 
           <p className="mt-4 text-slate-400">
-            Learning, innovation, mentorship and growth.
+            A working professional successfully switched careers
+            into cloud computing.
           </p>
         </div>
       </div>

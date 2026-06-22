@@ -7,30 +7,22 @@ datasource db {
   provider = "postgresql"
 }
 
-// ============= AUTHENTICATION =============
-enum UserRole {
-  STUDENT
-  MENTOR
-  ADMIN
-}
-
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String         @unique
+  password      String?
+  role          UserRole       @default(STUDENT)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   emailVerified DateTime?
   image         String?
-  password      String?
-  role          UserRole  @default(STUDENT)
   phone         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
   accounts      Account[]
-  sessions      Session[]
-  student       Student?
   mentor        Mentor?
   notifications Notification[]
+  sessions      Session[]
+  student       Student?
 }
 
 model Account {
@@ -39,12 +31,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -67,120 +59,85 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// ============= STUDENT =============
-enum EducationLevel {
-  HIGH_SCHOOL
-  UNDERGRADUATE
-  GRADUATE
-  POSTGRADUATE
-  WORKING_PROFESSIONAL
-}
-
 model Student {
-  id              String         @id @default(cuid())
-  userId          String         @unique
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  educationLevel  EducationLevel?
-  institution     String?
-  currentYear     String?
-  degree          String?
-  skills          String[]       @default([])
-  interests       String[]       @default([])
-  careerGoal      String?        @db.Text
-  bio             String?        @db.Text
-  linkedinUrl     String?
-  githubUrl       String?
-  careerScore     Int?           // Career Readiness Score 0-100
-  resumeUrl       String?
-
-  assessments     Assessment[]
-  roadmaps        Roadmap[]
-  bookings        Booking[]
-  certificates    Certificate[]
-
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-}
-
-// ============= MENTOR =============
-enum MentorStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  SUSPENDED
+  id             String          @id @default(cuid())
+  userId         String          @unique
+  educationLevel EducationLevel?
+  institution    String?
+  currentYear    String?
+  degree         String?
+  skills         String[]        @default([])
+  interests      String[]        @default([])
+  careerGoal     String?
+  bio            String?
+  linkedinUrl    String?
+  githubUrl      String?
+  careerScore    Int?
+  resumeUrl      String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  assessments    Assessment[]
+  bookings       Booking[]
+  certificates   Certificate[]
+  roadmaps       Roadmap[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Mentor {
   id              String         @id @default(cuid())
   userId          String         @unique
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   status          MentorStatus   @default(PENDING)
   expertise       String[]       @default([])
   domains         String[]       @default([])
   experience      Int?
   currentRole     String?
   company         String?
-  bio             String?        @db.Text
+  bio             String?
   linkedinUrl     String?
   hourlyRate      Float          @default(0)
   rating          Float          @default(0)
   totalReviews    Int            @default(0)
   totalSessions   Int            @default(0)
   rejectionReason String?
-
-  availability    Availability[]
-  bookings        Booking[]
-  reviews         Review[]
-  resources       Resource[]
-  notes           MeetingNote[]
-
   approvedAt      DateTime?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+  availability    Availability[]
+  bookings        Booking[]
+  notes           MeetingNote[]
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resources       Resource[]
+  reviews         Review[]
 }
 
 model Availability {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   mentorId  String
-  mentor    Mentor   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
-  dayOfWeek Int      // 0=Sunday, 6=Saturday
-  startTime String   // "09:00"
-  endTime   String   // "17:00"
-  isActive  Boolean  @default(true)
-}
-
-// ============= BOOKINGS =============
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-  NO_SHOW
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  isActive  Boolean @default(true)
+  mentor    Mentor  @relation(fields: [mentorId], references: [id], onDelete: Cascade)
 }
 
 model Booking {
   id            String        @id @default(cuid())
   studentId     String
-  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
   mentorId      String
-  mentor        Mentor        @relation(fields: [mentorId], references: [id], onDelete: Cascade)
-
   scheduledAt   DateTime
   duration      Int           @default(60)
   status        BookingStatus @default(PENDING)
   meetLink      String?
-  notes         String?       @db.Text
+  notes         String?
   amount        Float         @default(0)
   paymentId     String?
   paymentStatus String        @default("pending")
-
-  review        Review?
-  meetingNote   MeetingNote?
-
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  mentor        Mentor        @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  student       Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  meetingNote   MeetingNote?
+  review        Review?
 
   @@index([scheduledAt])
   @@index([studentId])
@@ -190,83 +147,81 @@ model Booking {
 model MeetingNote {
   id          String   @id @default(cuid())
   bookingId   String   @unique
-  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   mentorId    String
-  mentor      Mentor   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
-  content     String   @db.Text
+  content     String
   actionItems String[] @default([])
   createdAt   DateTime @default(now())
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  mentor      Mentor   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
 }
 
 model Review {
   id        String   @id @default(cuid())
   bookingId String   @unique
-  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   mentorId  String
-  mentor    Mentor   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
-  rating    Int      // 1-5
-  comment   String?  @db.Text
+  rating    Int
+  comment   String?
   createdAt DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  mentor    Mentor   @relation(fields: [mentorId], references: [id], onDelete: Cascade)
 }
 
-// ============= AI FEATURES =============
 model Assessment {
   id                 String   @id @default(cuid())
   studentId          String
-  student            Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  type               String   // personality, skills, interests
+  type               String
   answers            Json
   result             Json
   score              Int?
   recommendedDomains String[] @default([])
   createdAt          DateTime @default(now())
+  student            Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 model Roadmap {
   id          String   @id @default(cuid())
   studentId   String
-  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   domain      String
   title       String
-  description String?  @db.Text
-  milestones  Json     // [{title, description, duration, resources, completed}]
+  description String?
+  milestones  Json
   duration    String?
   status      String   @default("active")
   progress    Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 model AiChat {
   id        String   @id @default(cuid())
   userId    String
-  messages  Json     // [{role, content, timestamp}]
+  messages  Json
   context   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// ============= CONTENT =============
 model Resource {
   id          String   @id @default(cuid())
   title       String
-  description String?  @db.Text
-  type        String   // pdf, video, link, template
+  description String?
+  type        String
   url         String
   category    String?
   domain      String?
   mentorId    String?
-  mentor      Mentor?  @relation(fields: [mentorId], references: [id], onDelete: SetNull)
   isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())
+  mentor      Mentor?  @relation(fields: [mentorId], references: [id])
 }
 
 model BlogPost {
   id          String    @id @default(cuid())
   title       String
   slug        String    @unique
-  excerpt     String?   @db.Text
-  content     String    @db.Text
+  excerpt     String?
+  content     String
   coverImage  String?
   category    String?
   tags        String[]  @default([])
@@ -283,7 +238,7 @@ model SuccessStory {
   name      String
   role      String
   company   String
-  story     String   @db.Text
+  story     String
   image     String?
   videoUrl  String?
   createdAt DateTime @default(now())
@@ -292,24 +247,23 @@ model SuccessStory {
 model Certificate {
   id        String   @id @default(cuid())
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   title     String
   domain    String
   issuedAt  DateTime @default(now())
   pdfUrl    String?
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
-// ============= NOTIFICATIONS =============
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
-  type      String   // info, success, warning, error
+  type      String
   isRead    Boolean  @default(false)
   link      String?
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ContactInquiry {
@@ -318,7 +272,36 @@ model ContactInquiry {
   email     String
   phone     String?
   subject   String
-  message   String   @db.Text
+  message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  STUDENT
+  MENTOR
+  ADMIN
+}
+
+enum EducationLevel {
+  HIGH_SCHOOL
+  UNDERGRADUATE
+  GRADUATE
+  POSTGRADUATE
+  WORKING_PROFESSIONAL
+}
+
+enum MentorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
 }

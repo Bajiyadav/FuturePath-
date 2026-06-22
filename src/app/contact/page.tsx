@@ -2,52 +2,60 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 export default function ContactPage() {
-  return (
-    <>
-      <Navbar />
+return (
+<> <Navbar />
 
-      <main className="min-h-screen bg-slate-50">
-        <section className="mx-auto max-w-4xl px-6 py-20">
-          <h1 className="text-center text-5xl font-bold">
-            Contact Us
-          </h1>
 
-          <p className="mt-4 text-center text-lg text-slate-600">
-            We'd love to hear from you.
-          </p>
+  <main className="min-h-screen bg-slate-950 text-white">
+    <section className="mx-auto max-w-5xl px-6 py-20">
+      <div className="text-center">
+        <h1 className="text-6xl font-bold">
+          Contact Us
+        </h1>
 
-          <form className="mt-16 rounded-2xl bg-white p-8 shadow-sm">
-            <div className="grid gap-6">
-              <input
-                type="text"
-                placeholder="Your Name"
-                className="rounded-xl border p-4"
-              />
+        <p className="mt-6 text-xl text-slate-400">
+          Have questions? We'd love to hear from you.
+        </p>
+      </div>
 
-              <input
-                type="email"
-                placeholder="Your Email"
-                className="rounded-xl border p-4"
-              />
+      <form className="mx-auto mt-16 max-w-3xl space-y-6 rounded-3xl bg-white/5 p-10">
+        <input
+          type="text"
+          placeholder="Full Name"
+          className="w-full rounded-xl bg-slate-900 p-4"
+        />
 
-              <textarea
-                rows={5}
-                placeholder="Your Message"
-                className="rounded-xl border p-4"
-              />
+        <input
+          type="email"
+          placeholder="Email Address"
+          className="w-full rounded-xl bg-slate-900 p-4"
+        />
 
-              <button
-                className="rounded-xl bg-black py-3 text-white"
-                type="submit"
-              >
-                Send Message
-              </button>
-            </div>
-          </form>
-        </section>
-      </main>
+        <input
+          type="text"
+          placeholder="Subject"
+          className="w-full rounded-xl bg-slate-900 p-4"
+        />
 
-      <Footer />
-    </>
-  );
+        <textarea
+          rows={6}
+          placeholder="Your Message"
+          className="w-full rounded-xl bg-slate-900 p-4"
+        />
+
+        <button
+          type="submit"
+          className="w-full rounded-xl bg-blue-600 py-4 font-semibold"
+        >
+          Send Message
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <Footer />
+</>
+
+
+);
 }
